@@ -1,21 +1,13 @@
 import numpy as np
+import ConvLayer as CL
 
+cl = CL.Conv_layer((32,32,1),(3,3,1), 3)
 
-D3 = np.zeros((3,3,0))
+cl.__init_random_filters__()
 
-print(D3)
+img = np.ones((32,32,1))
 
-D2 = np.ones((3,3))
+print(cl.forwardPass(img).shape)
 
-print(D2)
+print(cl.checkResultSize())
 
-D3 = np.dstack((D3,D2))
-
-print(D3.shape)
-print(D3)
-
-print('####')
-print(D3[:,:,0])
-
-D3_2 = D3[:,:,0]
-print(D3_2)

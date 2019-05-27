@@ -4,6 +4,16 @@ from matplotlib import pyplot as plt
 from scipy import ndimage
 
 
+def convolve2d(image, feature):
+    image_dim = np.array(image.shape)
+    feature_dim = np.array(feature.shape)
+    target_dim = image_dim + feature_dim - 1
+    fft_result = np.fft.fft2(image, target_dim) * np.fft.fft2(feature, target_dim)
+    target = np.fft.ifft2(fft_result).real
+
+    return target
+
+
 def __convolve2d__(image, filter,b=True):
     image_dim = np.shape(image)
     filter_dim = np.shape(filter)
@@ -84,7 +94,7 @@ gf = genGabor((36,36),3.5, np.pi/3 , func=np.cos)
 #myimshow(gf)
 
 
-with (open('train.pkl','rb')) as f:
+with (open('../train.pkl','rb')) as f:
     data = pickle.load(f)
 
 arr = np.asarray(data[0])
@@ -118,18 +128,26 @@ myimshow(img1)
 myimshow(img2)
 myimshow(img3)
 """
-myimshow(img4)
+#myimshow(img4)
 
-imgFFT = np.fft.fft2(img, img.shape) * np.fft.fft2(filter4, img.shape)
-imgFFT = np.flip(np.fft.fft2(imgFFT).real)
+img = np.dstack((img,img))
+print(img.shape)
+
+filter4 = np.dstack((filter4,filter4))
+print(filter4.shape)
+
+imgFFT = convolve2d(img, filter4)
+
+#imgFFT = np.fft.fft2(img, img.shape) * np.fft.fft2(filter4, img.shape)
+#imgFFT = np.flip(np.fft.fft2(imgFFT).real)
 
 myimshow(imgFFT)
 
 imgConvFull = __convolve2d__(img,filter4)
 imgConNotFul = __convolve2d__(img,filter4,False)
 
-myimshow(imgConvFull)
-myimshow(imgConNotFul)
+#myimshow(imgConvFull)
+#myimshow(imgConNotFul)
 
 PoolImg = np.zeros((1,36,36))
 print(img.shape)
@@ -146,7 +164,7 @@ print(np.shape(PoolImg))
 
 poolRes = __max__pooling__(PoolImg)[0]
 
-myimshow(poolRes)
+#myimshow(poolRes)
 
 
 
