@@ -28,7 +28,6 @@ class Conv_layer():
         self.mx_partial_results = []
 
 
-    def preceed
 
     def __init_random_filters__(self):
         self.mx_filters = np.random.normal(Conv_layer.gauss_MEAN, Conv_layer.gauss_ST_DEVIATION, (self.i_conv_size, self.i_conv_size, self.i_num_of_filters))
