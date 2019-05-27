@@ -25,10 +25,20 @@ class Conv_layer():
         self.mx_filters = []
         self.v_bias = []
 
-        self.mx_partial_results = []
+        self.features = []
 
 
-    def preceed
+    def forwardPass(self, image):
+        if len(self.mx_filters) == 0 or len(self.v_bias) == 0:
+            raise Exception('Conv_layer Exception: Weights non initialized!')
+            return
+
+        features = self.__convolve__(image)
+        features = self.__relu__(features)
+        features = self.__max__pooling__(features)
+
+        return features
+
 
     def __init_random_filters__(self):
         self.mx_filters = np.random.normal(Conv_layer.gauss_MEAN, Conv_layer.gauss_ST_DEVIATION, (self.i_conv_size, self.i_conv_size, self.i_num_of_filters))
@@ -47,6 +57,14 @@ class Conv_layer():
         else:
             self.mx_filters = filter
             self.v_bias = bias
+
+    def __convolve__(self, image):
+        features = np.array((self.i_num_of_filters, self.i_conv_size, self.i_conv_size))
+
+        for i in range(self.i_num_of_filters):
+            features[:,:,i] = self.__convolve2d__(image, self.mx_filters[:,:,i])
+            features[:,:,i] += self.v_bias[i]
+        return features
 
     def __convolve2d__(self, image, filter):
         image_dim = np.shape(image)
@@ -76,10 +94,10 @@ class Conv_layer():
     def __max__pooling__(self, features):
         pooling_dim = self.i_pooling_dim
 
-        nb_features, conv_dim, _ = np.shape(features)
+        conv_dim, _, nb_features = np.shape(features)
         res_dim = int(conv_dim / pooling_dim)  # assumed square shape
 
-        pooled_features = np.zeros((nb_features, res_dim, res_dim))
+        pooled_features = np.zeros((res_dim, res_dim, nb_features))
 
         for feature_i in range(nb_features):
             for pool_row in range(res_dim):
@@ -90,30 +108,6 @@ class Conv_layer():
                     col_start = pool_col * pooling_dim
                     col_end = col_start + pooling_dim
 
-                    patch = features[feature_i, row_start: row_end, col_start: col_end]
-                    pooled_features[feature_i, pool_row, pool_col] = np.max(patch)
+                    patch = features[row_start: row_end, col_start: col_end,feature_i]
+                    pooled_features[pool_row, pool_col,feature_i] = np.max(patch)
         return pooled_features
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
