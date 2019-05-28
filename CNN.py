@@ -1,5 +1,6 @@
 import numpy as np
 import ConvLayer as cl
+import Layer
 
 
 
@@ -23,7 +24,7 @@ class CNN():
         self.t_nodes_fflayers = nodes_fflayers
         self.t_dropout_prob = dropout_prob
 
-        self.l_cnn_layers = []
+        self.l_layers = []
 
 
 
@@ -33,7 +34,7 @@ class CNN():
 
         for i in range(self.i_num_conv_layers):
             cnnLayer = cl.Conv_layer(self.i_image_size, self.t_filter_size[i], self.t_num_filters[i], self.t_pooling_dim[i], self.t_padding[i])
-            self.l_cnn_layers.append(cnnLayer)
+            self.l_layers.append(cnnLayer)
 
     def __init_ff_layers__(self):
 

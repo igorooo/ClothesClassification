@@ -1,13 +1,16 @@
 import numpy as np
+from Layer import Layer_
 
-class Conv_layer():
+class Conv_layer(Layer_):
 
     gauss_MEAN = 0
     gauss_ST_DEVIATION = 1
 
 
     def __init__(self, input_img_size, filter_size, num_of_filters, pooling_dim = 2, padding = True):
+        super(Conv_layer, self).__init__()
         self.t_input_img_size = np.array(input_img_size)  #delete
+        self.t_input_size = input_img_size
         self.t_filter_size = np.array(filter_size)
         self.i_num_of_filters = num_of_filters
         self.i_pooling_dim = pooling_dim
@@ -29,19 +32,20 @@ class Conv_layer():
 
 
 
+
     def forwardPass(self, image):
         if len(self.mx_filters) == 0 or len(self.v_bias) == 0:
             raise Exception('Conv_layer Exception: Weights non initialized!')
-            return
+
 
         features = self.__cnn_layer__(image)
         features = self.__relu__(features)
         features = self.__max__pooling__(features)
+        self.result = features
 
         return features
 
-    def checkResultSize(self):
-        return np.shape(self.forwardPass(np.zeros(self.t_input_img_size)))
+
 
 
     def __init_random_filters__(self):
@@ -109,9 +113,7 @@ class Conv_layer():
 
         return target
 
-    def __relu__(self,x):
-        z = np.zeros_like(x)
-        return np.where(x > z, x, z)
+
 
 
 
