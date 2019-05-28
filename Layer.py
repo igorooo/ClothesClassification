@@ -5,9 +5,9 @@ class Layer_():
 
     def __init__(self):
         self.result = None
-        self.t_input_size = None
+        self.t_input_size = (0)
 
-    def forwardPass(self):
+    def forwardPass(self, image):
         pass
 
     def __relu__(self,x):

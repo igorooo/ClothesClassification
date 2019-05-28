@@ -7,7 +7,7 @@ class Conv_layer(Layer_):
     gauss_ST_DEVIATION = 1
 
 
-    def __init__(self, input_img_size, filter_size, num_of_filters, pooling_dim = 2, padding = True):
+    def __init__(self, input_img_size, filter_size, num_of_filters, pooling_dim = 2, padding = True, isLast = False):
         super(Conv_layer, self).__init__()
         self.t_input_img_size = np.array(input_img_size)  #delete
         self.t_input_size = input_img_size
@@ -15,6 +15,7 @@ class Conv_layer(Layer_):
         self.i_num_of_filters = num_of_filters
         self.i_pooling_dim = pooling_dim
         self.b_padding = padding
+        self.b_isLast = isLast
 
         if self.b_padding:
             self.t_conv_size = (self.t_input_img_size[0] + self.t_filter_size[0] -1,self.t_input_img_size[0] + self.t_filter_size[0] -1)
@@ -38,9 +39,15 @@ class Conv_layer(Layer_):
             raise Exception('Conv_layer Exception: Weights non initialized!')
 
 
+        image = self.__move_to_3D__(image)
+
         features = self.__cnn_layer__(image)
         features = self.__relu__(features)
         features = self.__max__pooling__(features)
+
+        if(self.b_isLast):
+            features = features.flatten()
+
         self.result = features
 
         return features
@@ -137,3 +144,10 @@ class Conv_layer(Layer_):
                     patch = features[row_start: row_end, col_start: col_end,feature_i]
                     pooled_features[pool_row, pool_col,feature_i] = np.max(patch)
         return pooled_features
+
+    def __move_to_3D__(self, image):
+
+        if(len(image.shape) != 3):
+            image = np.reshape(image, (image.shape[0], image.shape[0], 1))
+        return image
+

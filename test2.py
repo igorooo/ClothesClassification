@@ -18,17 +18,32 @@ ffl.__init_random_weights__()
 
 res2 = ffl.forwardPass(res)
 
-#print(res2)
 #print(res2.shape)
 
+
+
 a = [cl, ffl]
+i = 0
 for layer in a:
-
-    print(layer.result)
-    print(layer.checkResultSize())
-
+    print(i)
+    i +=1
 
 
+    
 
+    
+
+"""
+
+res = ffl.softmax(ffl.result)
+
+print('#####')
+
+print(res)
+
+np.set_printoptions(suppress=True)
+print(res)
+
+"""
 
 
