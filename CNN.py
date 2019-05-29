@@ -7,7 +7,7 @@ import Layer
 
 class CNN():
 
-    def __init__(self,image_size = 36, num_conv_layers = 2, num_filters = (8,8), filters_size = (3,3), pooling_dim = (2,2), padding = (True, True), num_fflayers = 2, nodes_fflayers = (8,8), dropout_prob = (0.2,0)):
+    def __init__(self,image_size = 36, num_conv_layers = 2, num_filters = (8,8), filters_size = (3,3), pooling_dim = (2,2), padding = (True, True), num_fflayers = 2, nodes_fflayers = (24,8), dropout_prob = (0.2,0)):
 
         if not (num_conv_layers == np.shape(num_filters)[0] == np.shape(filters_size)[0] == np.shape(pooling_dim)[0]):
             raise Exception('CNN Exception: Parameters for convolutional layers are not consistent')
@@ -71,21 +71,5 @@ class CNN():
         return self.__classify__(image)
 
 
-
-
-
-
-
-
-
     def __classify__(self, x):
         return np.argmax(x,axis=-1)
-
-
-
-
-
-
-
-
-

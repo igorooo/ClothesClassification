@@ -7,16 +7,22 @@ class FF_layer(Layer_):
     gauss_MEAN = 0
     gauss_ST_DEVIATION = 1
 
-    def __init__(self,input_size, nodes, dropout_prob):
+    def __init__(self,input_size, nodes, dropout_prob, isLast = False):
         super(FF_layer, self).__init__()
         self.i_input_size = input_size
         self.t_weights_dim = (input_size,nodes)
         self.i_input_size = input_size
         self.i_num_nodes = nodes
         self.i_dropout_prob = dropout_prob
+        self.b_isLast = isLast
 
         self.mx_weights = None
         self.v_bias = None
+
+        if isLast:
+            self.layer_type = Layer_.last_FF_layer
+        if not isLast:
+            self.layer_type = Layer_.FF_layer
 
 
 
@@ -30,9 +36,14 @@ class FF_layer(Layer_):
          #   raise Exception('FF_layer Exception: Weights not initialized!')
 
         res = (image@self.mx_weights) + self.v_bias
+        self.values_
         res = self.__relu__(res)
-        res = self.__dropout__(res,self.i_dropout_prob)
-        res = self.__softmax__(res)
+
+        if self.b_isLast:
+            res = self.__softmax__(res)
+        else:
+            res = self.__dropout__(res,self.i_dropout_prob)
+
         self.result = res
         #print(res.shape)
         return res
@@ -45,12 +56,3 @@ class FF_layer(Layer_):
         res = np.exp(w)
         divider = np.sum(res)
         return res/divider
-
-
-
-
-
-
-
-
-
