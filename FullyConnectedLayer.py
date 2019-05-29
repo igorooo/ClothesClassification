@@ -34,6 +34,7 @@ class FF_layer(Layer_):
         res = self.__dropout__(res,self.i_dropout_prob)
         res = self.__softmax__(res)
         self.result = res
+        #print(res.shape)
         return res
 
     def __dropout__(self,X, p):

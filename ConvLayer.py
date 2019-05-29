@@ -49,6 +49,7 @@ class Conv_layer(Layer_):
             features = features.flatten()
 
         self.result = features
+        #git aprint(features.shape)
 
         return features
 
