@@ -7,7 +7,7 @@ class Conv_layer(Layer_):
     gauss_ST_DEVIATION = 1
 
 
-    def __init__(self, input_img_size, filter_size, num_of_filters, pooling_dim = 2, padding = True, isLast = False):
+    def __init__(self, input_img_size, filter_size, num_of_filters, pooling_dim = 2, padding = False, isLast = False):
         super(Conv_layer, self).__init__()
         self.t_input_img_size = np.array(input_img_size)  #delete
         self.t_input_size = input_img_size
@@ -16,6 +16,8 @@ class Conv_layer(Layer_):
         self.i_pooling_dim = pooling_dim
         self.b_padding = padding
         self.b_isLast = isLast
+
+        self.layer_type = Layer_.CNN_layer
 
         if self.b_padding:
             self.t_conv_size = (self.t_input_img_size[0] + self.t_filter_size[0] -1,self.t_input_img_size[0] + self.t_filter_size[0] -1)
@@ -30,6 +32,9 @@ class Conv_layer(Layer_):
         self.v_bias = []
 
         self.features = []
+        self.features_cnn = None
+        self.features_relu = None
+        self.features_maxpool = None
 
 
 
@@ -42,8 +47,11 @@ class Conv_layer(Layer_):
         image = self.__move_to_3D__(image)
 
         features = self.__cnn_layer__(image)
+        self.features_cnn = features
         features = self.__relu__(features)
+        self.features_relu = features
         features = self.__max__pooling__(features)
+        self.features_maxpool = features
 
         if(self.b_isLast):
             features = features.flatten()
@@ -86,7 +94,7 @@ class Conv_layer(Layer_):
                 filter = self.mx_filters[:,:,channel_i,filter_i]
 
                 img = image[:,:,channel_i]
-                conved_img += self.__convolve2d__(img,filter)
+                conved_img += self.__convolve2d__(img,filter,self.b_padding)
             conved_img += self.v_bias[filter_i]
             conved_features[:,:,filter_i] = conved_img
         return conved_features
@@ -102,9 +110,9 @@ class Conv_layer(Layer_):
         return features
     """
 
-    def __convolve2d__(self, image, filter):
-        image_dim = np.shape(image)
-        filter_dim = np.shape(filter)
+    def __convolve2d__(self, image, filter, padding = False):
+        image_dim = np.array(np.shape(image))
+        filter_dim = np.array(np.shape(filter))
         """Deprecated
         if image_dim  != (self.i_input_img_size, self.i_input_img_size):
             print('Conv_layer fail: Given input image size is not equal to one declared previously')
@@ -113,8 +121,10 @@ class Conv_layer(Layer_):
             print('Conv_layer fail: Given filter size is not equal to one declared previously')
             return
         """
-
-        target_dim = self.t_conv_size
+        if padding :
+            target_dim = image_dim + filter_dim -1
+        else:
+            target_dim = image_dim - filter_dim +1
         fft_result = np.fft.fft2(image, target_dim) * np.fft.fft2(filter, target_dim)
         target = np.fft.ifft2(fft_result).real
 
@@ -150,4 +160,3 @@ class Conv_layer(Layer_):
         if(len(image.shape) != 3):
             image = np.reshape(image, (image.shape[0], image.shape[0], 1))
         return image
-
