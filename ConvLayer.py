@@ -31,10 +31,9 @@ class Conv_layer(Layer_):
         self.mx_filters = []
         self.v_bias = []
 
+        self.mx_max_pool_map = None
         self.features = []
-        self.features_cnn = None
-        self.features_relu = None
-        self.features_maxpool = None
+
 
 
 
@@ -47,19 +46,37 @@ class Conv_layer(Layer_):
         image = self.__move_to_3D__(image)
 
         features = self.__cnn_layer__(image)
-        self.features_cnn = features
+        self.values_1 = features
         features = self.__relu__(features)
-        self.features_relu = features
+        self.values_2 = features
         features = self.__max__pooling__(features)
-        self.features_maxpool = features
+        self.values_3 = features
 
         if(self.b_isLast):
             features = features.flatten()
 
         self.result = features
-        #git aprint(features.shape)
 
         return features
+
+    def backwardPass(self,dL, alfa):
+
+        print(dL.shape,end='before')
+        dL = dL.reshape(self.result.shape)
+
+
+
+        print(dL.shape,end='dL')
+        dU = self.__max__pool_backward(dL)
+        print(dU.shape,end='dU')
+        dR = np.multiply(dU, self.v_relu_grad)
+
+        print(dR.shape)
+
+
+
+
+
 
 
 
@@ -143,6 +160,8 @@ class Conv_layer(Layer_):
 
         pooled_features = np.zeros((res_dim, res_dim, nb_features))
 
+        self.mx_max_pool_map = np.zeros(features.shape)
+
         for feature_i in range(nb_features):
             for pool_row in range(res_dim):
                 row_start = pool_row * pooling_dim
@@ -153,8 +172,13 @@ class Conv_layer(Layer_):
                     col_end = col_start + pooling_dim
 
                     patch = features[row_start: row_end, col_start: col_end,feature_i]
+                    x, y = np.unravel_index(np.argmax(patch,axis=None),patch.shape)
+                    self.mx_max_pool_map[x+row_start, y+col_start, feature_i] = 1
                     pooled_features[pool_row, pool_col,feature_i] = np.max(patch)
         return pooled_features
+
+    def __max__pool_backward(self, dX):
+        return self.mx_max_pool_map * np.repeat( np.repeat(dX, self.i_pooling_dim, axis=0), self.i_pooling_dim, axis=1 )
 
     def __move_to_3D__(self, image):
 

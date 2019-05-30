@@ -6,6 +6,8 @@ def __max__pooling__(features, pooling_dim):
     conv_dim, _, nb_features = np.shape(features)
     res_dim = int(conv_dim / pooling_dim)  # assumed square shape
 
+    mx_max_pool_map = np.zeros(features.shape)
+
     pooled_features = np.zeros((res_dim, res_dim, nb_features))
 
     for feature_i in range(nb_features):
@@ -18,8 +20,10 @@ def __max__pooling__(features, pooling_dim):
                 col_end = col_start + pooling_dim
 
                 patch = features[row_start: row_end, col_start: col_end,feature_i]
+                x, y = np.unravel_index(np.argmax(patch, axis=None), patch.shape)
+                mx_max_pool_map[x+row_start, y+col_start, feature_i] = 1
                 pooled_features[pool_row, pool_col,feature_i] = np.max(patch)
-    return pooled_features
+    return pooled_features, mx_max_pool_map
 
 def __convolve2d__(image, filter, b = True):
     image_dim = np.array(np.shape(image))
@@ -46,11 +50,23 @@ def __convolve2d__(image, filter, b = True):
 test = np.ones((5,5))
 filter = np.array([[0,0,0],[0,2,0],[0,0,0]])
 
-testpool = np.ones((5,5,1))
+testpool = np.arange(16).reshape((4,4,1))
 
-#print(test)
-#print(filter)
+testpool[0,0,0] = 20
+testpool[2,1,0] = 21
 
-print(__max__pooling__(testpool,2).shape)
+print(testpool)
+print('^^^')
+
+maxpool, map = __max__pooling__(testpool,2)
+
+print(maxpool[:,:,0])
 print('#######')
-print(__convolve2d__(test,filter,False))
+print(map[:,:,0])
+#print(__convolve2d__(test,filter,False))
+
+print('$$$$$$')
+
+testpool = np.arange(4).reshape((2,2,1))
+print(np.repeat(np.repeat(testpool,4, axis=0),4,axis=1).shape)
+

@@ -12,21 +12,35 @@ img = np.ones((32,32,1))
 res = cl.forwardPass(img)
 
 res = res.flatten()
+#print(res.shape[0])
 
 ffl = FFL.FF_layer(res.shape[0], 3, 0.25)
 ffl.__init_random_weights__()
 
 res2 = ffl.forwardPass(res)
 
+dL = np.ones((3,1))
+
+fflBres = ffl.backwardPass(dL,0.1)
+
+
+
+cclBres = cl.backwardPass(fflBres[2],0.1)
+print(cclBres)
+
 #print(res2.shape)
 
 
 
-a = [cl, ffl]
-i = 0
-for layer in a:
-    print(i)
-    i +=1
+test = np.array([[1,1,1],[2,2,2],[3,3,3]])
+test2 = np.ones((3,5))
+
+#print(test2.shape)
+
+test1 = np.array([1,2,3])
+#print(test1.shape)
+
+#print(np.multiply(test2, test1))
 
 
     
