@@ -28,8 +28,8 @@ class Conv_layer(Layer_):
         self.t_Allfilters_size = (self.t_filter_size[0], self.t_filter_size[1], self.t_filter_size[2], self.i_num_of_filters)
 
 
-        self.mx_filters = []
-        self.v_bias = []
+        self.mx_filters = None
+        self.v_bias = None
 
         self.mx_max_pool_map = None
         self.features = []
@@ -43,7 +43,10 @@ class Conv_layer(Layer_):
             raise Exception('Conv_layer Exception: Weights non initialized!')
 
 
+
+
         image = self.__move_to_3D__(image)
+        self.input = image
 
         features = self.__cnn_layer__(image)
         self.values_1 = features
@@ -59,26 +62,76 @@ class Conv_layer(Layer_):
 
         return features
 
-    def backwardPass(self,dL, alfa):
+    def backwardPass(self,dL):
 
-        print(dL.shape,end='before')
-        dL = dL.reshape(self.result.shape)
+        w = np.array(self.mx_filters)
+        x = self.input
 
 
+        #print(dL.shape,end='before')
 
-        print(dL.shape,end='dL')
+
+        if(self.b_isLast):
+            dL = dL.reshape(self.values_3.shape)
+
+        else:
+            dL = dL.reshape(self.result.shape)
+
+
+        #print(dL.shape,end='dL')
         dU = self.__max__pool_backward(dL)
-        print(dU.shape,end='dU')
+        #print(dU.shape,end='dU')
         dR = np.multiply(dU, self.v_relu_grad)
 
-        print(dR.shape)
 
 
+        dB = np.sum(dR,axis=(0,1),keepdims=True)
+        #print(dB.shape)
+
+        dW = np.zeros_like(w)
+        #print(dW.shape,end='dW')
+
+        f_dim = self.t_filter_size[0]
+
+        #print(dR.shape,end='dr.shape\n')
+        #print(x.shape, end='x.shape\n')
+        #print(w.shape,end='w.shape\n')
+
+        w_x = x.shape[0]
+        max_offset = w_x - w.shape[0] +1
+        #print(max_offset,end='offset\n')
 
 
+        for a in range(f_dim):
+            for b in range(f_dim):
+                wX = x[a:(a+max_offset), b:(b+max_offset), :]
+                #print(wX.shape,end='wX shape\n')
+                dW[a,b,:] = np.sum(dR*wX,axis=(0,1,2))
+        #print(dW.shape,end='dWshape\n')
+
+        dX = np.zeros_like(x)
+
+        Zpad = f_dim-1,f_dim-1
+
+        dZpad = np.pad(dR, (Zpad,Zpad,(0,0)), 'constant', constant_values=0)
+
+        #print(dR.shape,end='before pad \n')
+        #print(dZpad.shape, end='after pad\n')
 
 
+        for f in range(w.shape[3]): # f filter nr
+            for c in range(x.shape[2]): # c channel
+                dX[:,:,c] += self.__convolve2d__(dZpad[:,:,f], w[:,:,c,f])
+        #print(dX.shape,end='dX.shape\n')
+        #print(self.input.shape, end='input\n')
 
+        return dW, dB, dX
+
+    def update(self, dW, dB, learningRate):
+        dW = dW.reshape(self.mx_filters.shape)
+        dB = dB.reshape(self.v_bias.shape)
+        self.mx_filters += learningRate*dW
+        self.v_bias += learningRate*dB
 
 
     def __init_random_filters__(self):
@@ -154,10 +207,8 @@ class Conv_layer(Layer_):
 
     def __max__pooling__(self, features):
         pooling_dim = self.i_pooling_dim
-
         conv_dim, _, nb_features = np.shape(features)
         res_dim = int(conv_dim / pooling_dim)  # assumed square shape
-
         pooled_features = np.zeros((res_dim, res_dim, nb_features))
 
         self.mx_max_pool_map = np.zeros(features.shape)
@@ -178,7 +229,14 @@ class Conv_layer(Layer_):
         return pooled_features
 
     def __max__pool_backward(self, dX):
-        return self.mx_max_pool_map * np.repeat( np.repeat(dX, self.i_pooling_dim, axis=0), self.i_pooling_dim, axis=1 )
+
+        pool_values = np.repeat( np.repeat(dX, self.i_pooling_dim, axis=0), self.i_pooling_dim, axis=1 )
+        map_pool = self.mx_max_pool_map
+
+        if(map_pool.shape[0] > pool_values.shape[0]):
+            pool_values  = np.pad(pool_values, ((0,1), (0,1), (0,0)), 'constant', constant_values=0)
+
+        return pool_values * map_pool
 
     def __move_to_3D__(self, image):
 

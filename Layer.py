@@ -25,7 +25,10 @@ class Layer_():
     def forwardPass(self, image):
         pass
 
-    def backwardPass(self,dL, alfa):
+    def backwardPass(self,dL):
+        pass
+
+    def update(self,dW, dB, learningRate):
         pass
 
     def __relu__(self,x):

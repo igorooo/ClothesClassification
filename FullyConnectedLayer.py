@@ -55,7 +55,7 @@ class FF_layer(Layer_):
         #print(res.shape)
         return res
 
-    def backwardPass(self,dL, alfa):
+    def backwardPass(self,dL):
         w = self.mx_weights
         prev_l, cur_l = w.shape
 
@@ -72,9 +72,11 @@ class FF_layer(Layer_):
 
         return dW, dB, dY
 
-
-
-
+    def update(self, dW, dB, learningRate):
+        dW = dW.reshape(self.mx_weights.shape)
+        dB = dB.reshape(self.v_bias.shape)
+        self.mx_weights += learningRate*dW
+        self.v_bias += learningRate*dB
 
 
 

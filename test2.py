@@ -21,11 +21,11 @@ res2 = ffl.forwardPass(res)
 
 dL = np.ones((3,1))
 
-fflBres = ffl.backwardPass(dL,0.1)
+fflBres = ffl.backwardPass(dL)
 
 
 
-cclBres = cl.backwardPass(fflBres[2],0.1)
+cclBres = cl.backwardPass(fflBres[2])
 print(cclBres)
 
 #print(res2.shape)
