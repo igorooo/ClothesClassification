@@ -104,18 +104,17 @@ class CNN():
 
 
 
-    def learn(self, training_set, epochs = 1000, learning_rate = 0.001):
+    def learn(self, training_set, epochs = 10000, learning_rate = 0.01):
 
         x_tr_set = training_set[0].shape[0]
 
 
         for ep in range(epochs):
 
-            ix = np.random.randint(0,x_tr_set)
+            ix = ep
 
             img = training_set[0][ix,:,:]
             label = training_set[1][ix]
-
 
             result = self.__forwardPass__(img)
             dL = self.__cross_entropy__(label, result)
@@ -127,16 +126,16 @@ class CNN():
 
         positive = 0
 
-        for i in range(50):
+        epochs = 200
+
+        for i in range(epochs):
 
             result = self.forwardPass(valid_set[0][i,:,:])
 
             if(result == np.argmax(valid_set[1][i])):
                 positive += 1
 
-        return positive/x_valid_set
-
-
+        return positive/epochs
 
 
     @staticmethod
@@ -153,7 +152,7 @@ class CNN():
     def __cross_entropy__(label, y):
         label = label.reshape(y.shape)
         div = y - label
-        return np.reshape(label * div,(y.shape[0], 1))
+        return np.reshape(div,(y.shape[0], 1))
 
 
 

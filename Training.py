@@ -8,7 +8,7 @@ def extractData():
         data = pickle.load(f)
 
     images = np.array(data[0])
-    images = images.reshape((images.shape[0], 36, 36))
+    images = images.reshape((images.shape[0], 36, 36, 1))
     labels_ = np.array(data[1])
     labels = np.zeros((labels_.shape[0], 10))
 
@@ -17,9 +17,9 @@ def extractData():
 
     training_set = []
 
-    tr_set_num = 50000
+    tr_set_num = 55000
 
-    tr_imgs = images[:tr_set_num, :]
+    tr_imgs = images[:tr_set_num, :,:,0]
     tr_labels = labels[:tr_set_num]
 
     training_set.append(tr_imgs)
@@ -40,6 +40,8 @@ tr,vl = extractData()
 
 
 
+
+
 cnn = CNN.CNN()
 
 cnn.init_random()
@@ -50,6 +52,7 @@ cnn.learn(tr)
 res = cnn.vaidation(vl)
 
 print(res)
+
 
 
 

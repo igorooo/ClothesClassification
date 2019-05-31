@@ -130,8 +130,8 @@ class Conv_layer(Layer_):
     def update(self, dW, dB, learningRate):
         dW = dW.reshape(self.mx_filters.shape)
         dB = dB.reshape(self.v_bias.shape)
-        self.mx_filters += learningRate*dW
-        self.v_bias += learningRate*dB
+        self.mx_filters -= learningRate*dW
+        self.v_bias -= learningRate*dB
 
 
     def __init_random_filters__(self):

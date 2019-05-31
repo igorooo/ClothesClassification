@@ -62,8 +62,10 @@ class FF_layer(Layer_):
         y = self.input.reshape(self.input.shape[0],1)
         dFi = dL * self.v_relu_grad.reshape(dL.shape)
 
-        dropout = self.v_dropout_grad.reshape(dFi.shape)
-        dFi = dFi * dropout
+
+        if self.b_isLast == False:
+            dropout = self.v_dropout_grad.reshape(dFi.shape)
+            dFi = dFi * dropout
 
         dY = np.dot(w,dFi)
         dB = dFi
@@ -75,8 +77,8 @@ class FF_layer(Layer_):
     def update(self, dW, dB, learningRate):
         dW = dW.reshape(self.mx_weights.shape)
         dB = dB.reshape(self.v_bias.shape)
-        self.mx_weights += learningRate*dW
-        self.v_bias += learningRate*dB
+        self.mx_weights -= learningRate*dW
+        self.v_bias -= learningRate*dB
 
 
 
